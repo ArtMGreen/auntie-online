@@ -6,9 +6,11 @@ from telegram import Update
 from telegram.ext import (Application, CommandHandler, ContextTypes,
                           MessageHandler, filters)
 
+from src.baseyandexgpt import YandexGPTConfig
 from src.yandexgpt import YandexGPTBot
 
 load_dotenv()
+
 SERVICE_ACCOUNT_ID = os.environ['ACCOUNT_ID']
 KEY_ID = os.environ['KEY_ID']
 PRIVATE_KEY = os.environ['PRIVATE_KEY']
@@ -16,10 +18,12 @@ FOLDER_ID = os.environ['FOLDER_ID']
 TELEGRAM_TOKEN = os.environ['BOT_TOKEN']
 
 yandex_bot = YandexGPTBot(
-    SERVICE_ACCOUNT_ID,
-    KEY_ID,
-    PRIVATE_KEY,
-    FOLDER_ID,
+    YandexGPTConfig(
+        SERVICE_ACCOUNT_ID,
+        KEY_ID,
+        PRIVATE_KEY,
+        FOLDER_ID
+    )
 )
 logger = logging.getLogger(__name__)
 

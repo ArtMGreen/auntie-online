@@ -1,17 +1,12 @@
-from src.prompt_validation import Validator
 from src.baseyandexgpt import BaseYandexGPTBot
+from src.prompt_validation import Validator
 
 
 class YandexGPTBot(BaseYandexGPTBot):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, config):
+        super().__init__(config)
 
-        self.validator = Validator(
-            self.service_account_id,
-            self.key_id,
-            self.private_key,
-            self.folder_id
-        )
+        self.validator = Validator(config)
 
     def ask_gpt(self, question) -> str:
         is_valid_prompt = self.validator.check_prompt(question)

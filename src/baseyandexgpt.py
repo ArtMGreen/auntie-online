@@ -1,18 +1,22 @@
 import logging
 import time
+from dataclasses import dataclass
 
 import jwt
 import requests
 
 
+@dataclass
+class YandexGPTConfig:
+    """Configuration for Yandex GPT authentication"""
+    service_account_id: str
+    key_id: str
+    private_key: str
+    folder_id: str
+
+
 class BaseYandexGPTBot:
-    def __init__(
-            self,
-            service_account_id,
-            key_id,
-            private_key,
-            folder_id,
-    ):
+    def __init__(self, config: YandexGPTConfig):
         logging.basicConfig(
             format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
             level=logging.INFO
@@ -20,10 +24,7 @@ class BaseYandexGPTBot:
         self.logger = logging.getLogger(__name__)
 
         self.iam_token = None
-        self.service_account_id = service_account_id
-        self.key_id = key_id
-        self.private_key = private_key
-        self.folder_id = folder_id
+        self.config = config
 
         self.token_expires = 0
         self.history = []
@@ -37,16 +38,16 @@ class BaseYandexGPTBot:
             now = int(time.time())
             payload = {
                 'aud': 'https://iam.api.cloud.yandex.net/iam/v1/tokens',
-                'iss': self.service_account_id,
+                'iss': self.config.service_account_id,
                 'iat': now,
                 'exp': now + 360
             }
 
             encoded_token = jwt.encode(
                 payload,
-                self.private_key,
+                self.config.private_key,
                 algorithm='PS256',
-                headers={'kid': self.key_id}
+                headers={'kid': self.config.key_id}
             )
 
             response = requests.post(
@@ -69,7 +70,6 @@ class BaseYandexGPTBot:
             self.logger.error("Error generating IAM token: %s", str(e))
             raise
 
-
     def unsafe_ask_gpt(self, question):
         """Запрос к Yandex GPT API"""
         try:
@@ -78,12 +78,12 @@ class BaseYandexGPTBot:
             headers = {
                 'Content-Type': 'application/json',
                 'Authorization': f'Bearer {iam_token}',
-                'x-folder-id': self.folder_id
+                'x-folder-id': self.config.folder_id
             }
 
             self.history.append(f"Пользователь: {question}")
             data = {
-                "modelUri": f"gpt://{self.folder_id}/yandexgpt-lite",
+                "modelUri": f"gpt://{self.config.folder_id}/yandexgpt-lite",
                 "completionOptions": {
                     "stream": False,
                     "temperature": 0.6,
@@ -110,9 +110,9 @@ class BaseYandexGPTBot:
 
             answer = response.json()['result']['alternatives'][0]['message']['text']
             self.history.append(f"Ты: {answer}")
-            self.logger.info("""dialog info:
-                                question: %s
-                                answer: %s""", question[:min(100, len(answer))], answer[:min(len(answer), 100)])
+            self.logger.info("dialog info:\nquestion: %s\nanswer: %s",
+                             question[:min(100, len(answer))],
+                             answer[:min(len(answer), 100)])
             return answer
 
         except Exception as e:
