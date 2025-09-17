@@ -36,7 +36,7 @@ class YandexGPTBot:
         self.token_expires = 0
         self.history = []
 
-    def get_iam_token(self):
+    def _get_iam_token(self):
         """Получение IAM-токена (с кэшированием на 1 час)"""
         if self.iam_token and time.time() < self.token_expires:
             return self.iam_token
@@ -84,7 +84,7 @@ class YandexGPTBot:
             if not is_valid_prompt:
                 return "Ваш вопрос был удален, поскольку он может нарушать правила использования бота"
 
-            iam_token = self.get_iam_token()
+            iam_token = self._get_iam_token()
 
             headers = {
                 'Content-Type': 'application/json',
