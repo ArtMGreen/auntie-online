@@ -14,7 +14,9 @@ class YandexGPTBot(BaseYandexGPTBot):
     def ask_gpt(self, question) -> str:
         is_valid_prompt = self.validator.check_prompt(question)
         if not is_valid_prompt:
-            return ("Ваш вопрос был удален, "
-                    "поскольку он может нарушать правила использования бота")
+            return (
+                "Ваш вопрос был удален, "
+                "поскольку он может нарушать правила использования бота"
+            )
 
         return super().unsafe_ask_gpt(question)

@@ -3,27 +3,27 @@ import os
 
 from dotenv import load_dotenv
 from telegram import Update
-from telegram.ext import (Application, CommandHandler, ContextTypes,
-                          MessageHandler, filters)
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    ContextTypes,
+    MessageHandler,
+    filters,
+)
 
 from src.baseyandexgpt import YandexGPTConfig
 from src.yandexgpt import YandexGPTBot
 
 load_dotenv()
 
-SERVICE_ACCOUNT_ID = os.environ['ACCOUNT_ID']
-KEY_ID = os.environ['KEY_ID']
-PRIVATE_KEY = os.environ['PRIVATE_KEY']
-FOLDER_ID = os.environ['FOLDER_ID']
-TELEGRAM_TOKEN = os.environ['BOT_TOKEN']
+SERVICE_ACCOUNT_ID = os.environ["ACCOUNT_ID"]
+KEY_ID = os.environ["KEY_ID"]
+PRIVATE_KEY = os.environ["PRIVATE_KEY"]
+FOLDER_ID = os.environ["FOLDER_ID"]
+TELEGRAM_TOKEN = os.environ["BOT_TOKEN"]
 
 yandex_bot = YandexGPTBot(
-    YandexGPTConfig(
-        SERVICE_ACCOUNT_ID,
-        KEY_ID,
-        PRIVATE_KEY,
-        FOLDER_ID
-    )
+    YandexGPTConfig(SERVICE_ACCOUNT_ID, KEY_ID, PRIVATE_KEY, FOLDER_ID)
 )
 logger = logging.getLogger(__name__)
 
@@ -46,8 +46,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         # Показываем статус "печатает"
         await context.bot.send_chat_action(
-            chat_id=update.effective_chat.id,
-            action="typing"
+            chat_id=update.effective_chat.id, action="typing"
         )
 
         response = yandex_bot.ask_gpt(user_message)
@@ -80,7 +79,9 @@ def main():
         application = Application.builder().token(TELEGRAM_TOKEN).build()
 
         application.add_handler(CommandHandler("start", start))
-        application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+        application.add_handler(
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message)
+        )
         application.add_error_handler(error_handler)
 
         logger.info("Бот запускается...")
