@@ -5,6 +5,8 @@ from dataclasses import dataclass
 import jwt
 import requests
 
+from src.exceptions import YandexGptException
+
 
 @dataclass
 class YandexGPTConfig:
@@ -57,7 +59,7 @@ class BaseYandexGPTBot:
             )
 
             if response.status_code != 200:
-                raise Exception(f"Ошибка генерации токена: {response.text}")
+                raise YandexGptException(f"Ошибка генерации токена: {response.text}")
 
             token_data = response.json()
             self.iam_token = token_data['iamToken']
@@ -106,7 +108,7 @@ class BaseYandexGPTBot:
 
             if response.status_code != 200:
                 self.logger.error("Yandex GPT API error: %s", response.text)
-                raise Exception(f"Ошибка API: {response.status_code}")
+                raise YandexGptException(f"Ошибка API: {response.status_code}")
 
             answer = response.json()['result']['alternatives'][0]['message']['text']
             self.history.append(f"Ты: {answer}")

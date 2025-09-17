@@ -2,8 +2,8 @@ from src.baseyandexgpt import BaseYandexGPTBot
 
 
 class Validator(BaseYandexGPTBot):
-    def ask_gpt(self, question):
-        raise AttributeError("'Validator' object has no attribute 'ask_gpt'")
+    def unsafe_ask_gpt(self, question):
+        raise AttributeError("'Validator' object has no attribute 'unsafe_ask_gpt'")
 
     def check_prompt(self, prompt: str) -> bool:
         """Проверка промпта на безопасность"""
