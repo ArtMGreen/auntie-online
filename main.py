@@ -13,14 +13,23 @@ from telegram.ext import (
 
 from src.base_yandex_gpt import YandexGPTConfig
 from src.yandex_gpt import YandexGPTBot
+from src import rag
 
 load_dotenv()
-
 SERVICE_ACCOUNT_ID = os.environ["ACCOUNT_ID"]
 KEY_ID = os.environ["KEY_ID"]
 PRIVATE_KEY = os.environ["PRIVATE_KEY"]
 FOLDER_ID = os.environ["FOLDER_ID"]
 TELEGRAM_TOKEN = os.environ["BOT_TOKEN"]
+
+s3_cfg = {
+    "endpoint": os.environ["S3_ENDPOINT"],
+    "access_key": os.environ["S3_ACCESS_KEY"],
+    "secret_key": os.environ["S3_SECRET_KEY"],
+    "bucket": os.environ["S3_BUCKET"],
+    "prefix": os.environ.get("S3_PREFIX", ""),
+}
+global_vector_store = rag.prepare_index(s3_cfg)
 
 yandex_bot = YandexGPTBot(
     YandexGPTConfig(SERVICE_ACCOUNT_ID, KEY_ID, PRIVATE_KEY, FOLDER_ID)
@@ -49,7 +58,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             chat_id=update.effective_chat.id, action="typing"
         )
 
-        response = yandex_bot.ask_gpt(user_message)
+        response = rag.rag_answer(global_vector_store, yandex_bot, user_message)
         await update.message.reply_text(response)
 
     except Exception as e:

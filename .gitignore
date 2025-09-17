@@ -13,3 +13,6 @@ wheels/
 uv.lock
 .python-version
 .vscode/
+
+faiss_index.bin
+faiss_meta.pkl
