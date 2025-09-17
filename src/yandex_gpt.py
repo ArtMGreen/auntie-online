@@ -1,4 +1,4 @@
-from src.baseyandexgpt import BaseYandexGPTBot
+from src.base_yandex_gpt import BaseYandexGPTBot
 from src.prompt_validation import Validator
 
 

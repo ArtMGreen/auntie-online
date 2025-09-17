@@ -11,8 +11,8 @@ from telegram.ext import (
     filters,
 )
 
-from src.baseyandexgpt import YandexGPTConfig
-from src.yandexgpt import YandexGPTBot
+from src.base_yandex_gpt import YandexGPTConfig
+from src.yandex_gpt import YandexGPTBot
 
 load_dotenv()
 

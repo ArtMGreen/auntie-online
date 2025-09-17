@@ -1,10 +1,13 @@
-# .pre-commit-config.yaml
 repos:
   - repo: https://github.com/psf/black
     rev: 25.1.0
     hooks:
       - id: black
-  - repo: https://github.com/pycqa/pylint
-    rev: v3.3.8
+  - repo: local
     hooks:
       - id: pylint
+        name: pylint
+        entry: uv run pylint
+        language: system
+        types: [python]
+        require_serial: true
