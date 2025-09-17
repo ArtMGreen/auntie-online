@@ -39,15 +39,32 @@ jobs:
 
 
   snyk:
-    name: Run Skyk security checks
+    name: Run Snyk security checks
     runs-on: ubuntu-22.04
-    needs: [ lint ]
+    needs: [lint]
 
     steps:
       - uses: actions/checkout@v4
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/python-3.10@master
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          args: --skip-unresolved app_python/
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Prepare for Snyk
+        run: |
+          uv lock
+          uv export --no-hashes -o requirements.txt
+          pip install -r requirements.txt
+
+      - name: Setup Snyk
+        uses: snyk/actions/setup@master
+
+      - name: Run Snyk test
+        run: snyk test --file=requirements.txt --package-manager=pip
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
