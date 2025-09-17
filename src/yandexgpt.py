@@ -1,18 +1,19 @@
 import logging
 import time
-import requests
+
 import jwt
+import requests
 
 from src.prompt_validation import Validator
 
 
 class YandexGPTBot:
     def __init__(
-        self,
-        service_account_id,
-        key_id,
-        private_key,
-        folder_id,
+            self,
+            service_account_id,
+            key_id,
+            private_key,
+            folder_id,
     ):
         logging.basicConfig(
             format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -36,7 +37,7 @@ class YandexGPTBot:
         self.token_expires = 0
         self.history = []
 
-    def _get_iam_token(self):
+    def get_iam_token(self):
         """Получение IAM-токена (с кэшированием на 1 час)"""
         if self.iam_token and time.time() < self.token_expires:
             return self.iam_token
@@ -74,7 +75,7 @@ class YandexGPTBot:
             return self.iam_token
 
         except Exception as e:
-            self.logger.error(f"Error generating IAM token: {str(e)}")
+            self.logger.error("Error generating IAM token: %s", str(e))
             raise
 
     def ask_gpt(self, question):
@@ -82,9 +83,10 @@ class YandexGPTBot:
         try:
             is_valid_prompt = self.validator.check_prompt(question)
             if not is_valid_prompt:
-                return "Ваш вопрос был удален, поскольку он может нарушать правила использования бота"
+                return ("Ваш вопрос был удален, "
+                        "поскольку он может нарушать правила использования бота")
 
-            iam_token = self._get_iam_token()
+            iam_token = self.get_iam_token()
 
             headers = {
                 'Content-Type': 'application/json',
@@ -116,14 +118,16 @@ class YandexGPTBot:
             )
 
             if response.status_code != 200:
-                self.logger.error(f"Yandex GPT API error: {response.text}")
+                self.logger.error("Yandex GPT API error: %s", response.text)
                 raise Exception(f"Ошибка API: {response.status_code}")
 
             answer = response.json()['result']['alternatives'][0]['message']['text']
             self.history.append(f"Ты: {answer}")
-            self.logger.info(f"dialog info:\nquestion: {question[:min(100, len(answer))]}\nanswer: {answer[:min(len(answer), 100)]}")
+            self.logger.info("""dialog info:
+                                question: %s
+                                answer: %s""", question[:min(100, len(answer))], answer[:min(len(answer), 100)])
             return answer
 
         except Exception as e:
-            self.logger.error(f"Error in ask_gpt: {str(e)}")
+            self.logger.error("Error in ask_gpt: %s", str(e))
             raise

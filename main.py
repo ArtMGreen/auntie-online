@@ -1,11 +1,12 @@
-from dotenv import load_dotenv
-import os
 import logging
+import os
+
+from dotenv import load_dotenv
 from telegram import Update
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+from telegram.ext import (Application, CommandHandler, ContextTypes,
+                          MessageHandler, filters)
 
 from src.yandexgpt import YandexGPTBot
-
 
 load_dotenv()
 SERVICE_ACCOUNT_ID = os.environ['ACCOUNT_ID']
@@ -23,7 +24,7 @@ yandex_bot = YandexGPTBot(
 logger = logging.getLogger(__name__)
 
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def start(update: Update):
     """Обработчик команды /start"""
     await update.message.reply_text(
         "Привет! Я бот для работы с Yandex GPT. Просто напиши мне свой вопрос"
@@ -49,7 +50,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(response)
 
     except Exception as e:
-        logger.error(f"Error handling message: {str(e)}")
+        logger.error("Error handling message: %s", str(e))
         await update.message.reply_text(
             "Извините, произошла ошибка при обработке вашего запроса. "
             "Пожалуйста, попробуйте позже."
@@ -58,7 +59,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработчик ошибок"""
-    logger.error(f"Update {update} caused error {context.error}")
+    logger.error("Update %s caused error %s", update, context.error)
     if update and update.effective_message:
         await update.effective_message.reply_text(
             "Произошла ошибка. Пожалуйста, попробуйте позже."
@@ -82,7 +83,7 @@ def main():
         application.run_polling()
 
     except Exception as e:
-        logger.error(f"Failed to start bot: {str(e)}")
+        logger.error("Failed to start bot: %s", str(e))
 
 
 if __name__ == "__main__":

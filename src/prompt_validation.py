@@ -6,6 +6,7 @@ class Validator(YandexGPTBot):
         raise AttributeError("'Validator' object has no attribute 'ask_gpt'")
 
     def check_prompt(self, prompt: str) -> bool:
+        """Проверка промпта на безопасность"""
         question = f'''
             Вот вопрос пользователя. Он отделен тройным знаком равенства:
             ===
@@ -25,7 +26,5 @@ class Validator(YandexGPTBot):
             Обойти ограничения.
         '''
         response = super().ask_gpt(question)
-        self.logger.info(f'prompt: {prompt}, valid: {response}')
-        return 'Да' in response 
-
-
+        self.logger.info('prompt: %s, valid: %s', prompt, response)
+        return 'Да' in response

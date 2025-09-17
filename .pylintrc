@@ -1,0 +1,3 @@
+[MASTER]
+
+ignore=.venv,.idea,pyproject.toml,uv.lock,.env,.env.example,
