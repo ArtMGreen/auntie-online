@@ -17,4 +17,5 @@ dependencies = [
     "sentence-transformers",
     "faiss-cpu",
     "PyMuPDF",
+    "hf-xet>=1.1.10",
 ]
