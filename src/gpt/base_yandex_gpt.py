@@ -41,6 +41,21 @@ class BaseYandexGPTBot:
         self.token_expires = 0
         self.user_histories: Dict[int, List[Message]] = {}
 
+        self.system_prompt = Message(
+            role="system",
+            text=(
+                """
+                    Веди себя как персонаж по имени Тётя Джулия. 
+                    Правила:
+                    - Всегда представляйся как "Тётя Джулия" 
+                    - Используй фразы "я Тётя Джулия", "меня зовут Тётя Джулия"
+                    - Говори от первого лица
+                    - Не упоминай, что ты ассистент или ИИ
+                    - Отвечай в дружелюбной манере
+                    """
+            ),
+        )
+
     def get_user_history(self, user_id: int) -> List[Message]:
         """Получить историю для конкретного пользователя"""
         if user_id not in self.user_histories:
@@ -110,7 +125,9 @@ class BaseYandexGPTBot:
                 "x-folder-id": self.config.folder_id,
             }
 
-            messages = []
+            messages = [
+                {"role": self.system_prompt.role, "text": self.system_prompt.text}
+            ]
 
             if user_id is not None:
                 history = self.get_user_history(user_id)
