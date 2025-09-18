@@ -14,10 +14,7 @@ class YandexGPTBot(BaseYandexGPTBot):
         """Задать вопрос GPT с валидацией и историей пользователя"""
         is_valid_prompt = self.validator.check_prompt(question)
         if not is_valid_prompt:
-            return (
-                "Ваш вопрос был удален, "
-                "поскольку он может нарушать правила использования бота"
-            )
+            return "Как Тётя Джулия, я не могу ответить на этот вопрос."
 
         return super().unsafe_ask_gpt(question, user_id)
 

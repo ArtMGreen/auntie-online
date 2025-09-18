@@ -51,7 +51,7 @@ async def start(update: Update, _context: ContextTypes.DEFAULT_TYPE):
     )
 
 
-async def reset_history(update: Update):
+async def reset_history(update: Update, _context: ContextTypes.DEFAULT_TYPE):
     """Обработчик команды /reset - сброс истории диалога"""
     user_id = update.effective_user.id
     yandex_bot.reset_user_history(user_id)
@@ -60,7 +60,7 @@ async def reset_history(update: Update):
     )
 
 
-async def show_history_info(update: Update):
+async def show_history_info(update: Update, _context: ContextTypes.DEFAULT_TYPE):
     """Показать информацию об истории диалога"""
     user_id = update.effective_user.id
     history = yandex_bot.get_user_history(user_id)
