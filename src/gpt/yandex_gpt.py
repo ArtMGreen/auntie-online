@@ -1,5 +1,5 @@
-from src.base_yandex_gpt import BaseYandexGPTBot
-from src.prompt_validation import Validator
+from src.gpt.base_yandex_gpt import BaseYandexGPTBot
+from src.gpt.prompt_validation import Validator
 
 
 class YandexGPTBot(BaseYandexGPTBot):

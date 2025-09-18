@@ -11,9 +11,9 @@ from telegram.ext import (
     filters,
 )
 
-from src.base_yandex_gpt import YandexGPTConfig
-from src.yandex_gpt import YandexGPTBot
-from src import rag
+from src.gpt.base_yandex_gpt import YandexGPTConfig
+from src.gpt.yandex_gpt import YandexGPTBot
+from src.rag import rag
 
 load_dotenv()
 SERVICE_ACCOUNT_ID = os.environ["ACCOUNT_ID"]

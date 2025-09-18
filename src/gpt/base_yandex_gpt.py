@@ -5,7 +5,7 @@ from dataclasses import dataclass
 import jwt
 import requests
 
-from src.exceptions import YandexGptException
+from src.gpt.exceptions import YandexGptException
 
 
 @dataclass
