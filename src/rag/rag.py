@@ -13,6 +13,10 @@ from sentence_transformers import SentenceTransformer
 logger = logging.getLogger(__name__)
 
 
+# файл делался Женей, ему не нравится использовать линтер, так что он выключен для этого файла в [конфиге](.pylintrc)
+# все вопросы к Жене, все равно я этот файл трогать не буду)))
+
+
 # -----------------------------
 # 1. Скачать документы из S3
 # -----------------------------
@@ -62,7 +66,7 @@ def extract_text(path: str) -> str:
     p = Path(path)
     if p.suffix.lower() == ".txt":
         return p.read_text(encoding="utf-8", errors="ignore")
-    elif p.suffix.lower() == ".pdf":
+    if p.suffix.lower() == ".pdf":
         text = []
         try:
             doc = fitz.open(path)

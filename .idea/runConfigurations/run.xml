@@ -8,7 +8,7 @@
       <map />
     </option>
     <option name="runType" value="SCRIPT" />
-    <option name="scriptOrModule" value="main.py" />
+    <option name="scriptOrModule" value="src/main.py" />
     <option name="uvArgs">
       <list />
     </option>
