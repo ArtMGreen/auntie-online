@@ -1,11 +1,12 @@
 import logging
 import time
 from dataclasses import dataclass
+from typing import List, Dict
 
 import jwt
 import requests
 
-from src.gpt.exceptions import YandexGptException
+from .exceptions import YandexGptException
 
 
 @dataclass
@@ -16,6 +17,14 @@ class YandexGPTConfig:
     key_id: str
     private_key: str
     folder_id: str
+
+
+@dataclass
+class Message:
+    """Сообщение в истории диалога"""
+
+    role: str  # "user" или "assistant"
+    text: str
 
 
 class BaseYandexGPTBot:
@@ -30,7 +39,24 @@ class BaseYandexGPTBot:
         self.config = config
 
         self.token_expires = 0
-        self.history = []
+        self.user_histories: Dict[int, List[Message]] = {}
+
+    def get_user_history(self, user_id: int) -> List[Message]:
+        """Получить историю для конкретного пользователя"""
+        if user_id not in self.user_histories:
+            self.user_histories[user_id] = []
+        return self.user_histories[user_id]
+
+    def add_to_history(self, user_id: int, role: str, text: str):
+        """Добавить сообщение в историю пользователя"""
+        history = self.get_user_history(user_id)
+        history.append(Message(role=role, text=text))
+
+    def clear_history(self, user_id: int):
+        """Очистить историю пользователя"""
+        if user_id in self.user_histories:
+            self.user_histories[user_id] = []
+            self.logger.info("History cleared for user %s.", user_id)
 
     def get_iam_token(self):
         """Получение IAM-токена (с кэшированием на 1 час)"""
@@ -64,7 +90,7 @@ class BaseYandexGPTBot:
 
             token_data = response.json()
             self.iam_token = token_data["iamToken"]
-            self.token_expires = now + 3500  # На 100 секунд меньше срока действия
+            self.token_expires = now + 3500
 
             self.logger.info("IAM token generated successfully")
             return self.iam_token
@@ -73,8 +99,8 @@ class BaseYandexGPTBot:
             self.logger.error("Error generating IAM token: %s", str(e))
             raise
 
-    def unsafe_ask_gpt(self, question):
-        """Запрос к Yandex GPT API"""
+    def unsafe_ask_gpt(self, question: str, user_id: int = None):
+        """Запрос к Yandex GPT API с учетом истории пользователя"""
         try:
             iam_token = self.get_iam_token()
 
@@ -84,7 +110,15 @@ class BaseYandexGPTBot:
                 "x-folder-id": self.config.folder_id,
             }
 
-            self.history.append(f"Пользователь: {question}")
+            messages = []
+
+            if user_id is not None:
+                history = self.get_user_history(user_id)
+                for msg in history:
+                    messages.append({"role": msg.role, "text": msg.text})
+
+            messages.append({"role": "user", "text": question})
+
             data = {
                 "modelUri": f"gpt://{self.config.folder_id}/yandexgpt-lite",
                 "completionOptions": {
@@ -92,7 +126,7 @@ class BaseYandexGPTBot:
                     "temperature": 0.6,
                     "maxTokens": 2000,
                 },
-                "messages": [{"role": "user", "text": "\n".join(self.history)}],
+                "messages": messages,
             }
 
             response = requests.post(
@@ -107,10 +141,15 @@ class BaseYandexGPTBot:
                 raise YandexGptException(f"Ошибка API: {response.status_code}")
 
             answer = response.json()["result"]["alternatives"][0]["message"]["text"]
-            self.history.append(f"Ты: {answer}")
+
+            if user_id is not None:
+                self.add_to_history(user_id, "user", question)
+                self.add_to_history(user_id, "assistant", answer)
+
             self.logger.info(
-                "dialog info:\nquestion: %s\nanswer: %s",
-                question[: min(100, len(answer))],
+                "dialog info for user %s:\nquestion: %s\nanswer: %s",
+                user_id if user_id else "unknown",
+                question[: min(100, len(question))],
                 answer[: min(len(answer), 100)],
             )
             return answer

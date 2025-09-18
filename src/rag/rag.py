@@ -196,7 +196,7 @@ def build_context(results: List[Dict]) -> str:
 # -----------------------------
 # 7. Основная функция RAG
 # -----------------------------
-def rag_answer(vector_store: VectorStore, yandex_bot, query: str) -> str:
+def rag_answer(vector_store: VectorStore, yandex_bot, query: str, user_id: int) -> str:
     results = vector_store.query(query, 5)
     context = build_context(results)
     # Тут с промптом можно поэкспериментировать
@@ -208,4 +208,4 @@ def rag_answer(vector_store: VectorStore, yandex_bot, query: str) -> str:
         "[USER]\n"
         f"{query}\n"
     )
-    return yandex_bot.ask_gpt(final_prompt)
+    return yandex_bot.ask_gpt(final_prompt, user_id)

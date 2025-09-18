@@ -1,4 +1,9 @@
 repos:
+  - repo: https://github.com/psf/black
+    rev: 25.1.0
+    hooks:
+      - id: black
+
   - repo: local
     hooks:
       - id: pylint
@@ -8,8 +13,3 @@ repos:
         types: [python]
         require_serial: true
         exclude: ^src/rag/rag\.py$
-
-  - repo: https://github.com/psf/black
-    rev: 25.1.0
-    hooks:
-      - id: black
