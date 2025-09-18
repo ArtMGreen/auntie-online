@@ -1,29 +1,34 @@
-# Use Python 3.13 slim as base
-FROM python:3.13-slim
-
-# Set environment variables
-ENV PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1
+# ---------- build stage ----------
+FROM python:3.13-slim AS builder
 
 WORKDIR /app
 
-# Install system dependencies (faiss, build deps etc.)
+# Устанавливаем системные зависимости для сборки пакетов
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libssl-dev \
     curl \
  && rm -rf /var/lib/apt/lists/*
 
-# Copy project files
-COPY pyproject.toml ./
+# Копируем requirements.txt и ставим зависимости в отдельный слой
+COPY requirements.txt .
+
+RUN pip install --prefix=/install -r requirements.txt
+
+
+# ---------- runtime stage ----------
+FROM python:3.13-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+# Копируем только установленные пакеты из builder stage
+COPY --from=builder /install /usr/local
+
+# Копируем исходники
 COPY src ./src
-COPY faiss_index.bin faiss_meta.pkl ./
 
-# Install uv
-RUN pip install uv
-
-# Install dependencies into system environment from pyproject.toml
-RUN uv pip install --system .
-
-# Default command
-CMD ["uv", "run", "src/main.py"]
+# Запуск
+CMD ["python", "src/main.py"]
