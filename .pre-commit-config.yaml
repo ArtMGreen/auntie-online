@@ -1,8 +1,14 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 25.1.0
+    rev: 24.10.0
     hooks:
       - id: black
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: [ "--profile", "black" ]
 
   - repo: local
     hooks:
@@ -10,6 +16,6 @@ repos:
         name: pylint
         entry: uv run pylint
         language: system
-        types: [python]
+        types: [ python ]
         require_serial: true
         exclude: ^src/rag/rag\.py$
