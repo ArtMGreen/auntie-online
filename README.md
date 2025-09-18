@@ -9,5 +9,5 @@ Run
 ```shell
 uv sync
 source .venv/bin/activate
-uv run main.py
+uv run src/main.py
 ```
