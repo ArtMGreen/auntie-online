@@ -15,8 +15,7 @@ uv run src/main.py
 ## Run in Docker
 
 ```shell
-# generate latest requirements.txt
-uv pip compile pyproject.toml -o requirements.txt
+uv sync
 ```
 
 ```shell
