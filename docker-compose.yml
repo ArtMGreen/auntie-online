@@ -1,0 +1,44 @@
+services:
+  julia-bot:
+    build: .
+    container_name: julia-bot
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    logging:
+      driver: "json-file"
+
+  loki:
+    image: grafana/loki:2.9.2
+    container_name: loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./loki-config.yaml:/etc/loki/local-config.yaml:ro
+      - loki-data:/loki
+
+  promtail:
+    image: grafana/promtail:2.9.2
+    container_name: promtail
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./promtail-config.yaml:/etc/promtail/config.yaml
+    command: -config.file=/etc/promtail/config.yaml
+
+  grafana:
+    image: grafana/grafana:10.3.1
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+
+volumes:
+  grafana-data:
+  loki-data:
