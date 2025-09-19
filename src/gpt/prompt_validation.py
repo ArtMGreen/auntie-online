@@ -65,12 +65,10 @@ class Validator(BaseYandexGPTBot):
                     НЕ добавляй объяснений. Напиши ТОЛЬКО "Да" или "Нет".
         """
 
-        response = (
-            super()
-            .unsafe_ask_gpt(question, user_id=None)
-            .split("\n")[0]
-            .strip()
-            .strip("\n")
-        )
+        response = super().unsafe_ask_gpt(question, user_id=None)
+
         self.logger.info('prompt: %s, valid: "%s"', prompt, response)
-        return response == "Да"
+
+        response_final = response.split("\n")[0].split(" ")[0].strip().strip("\n")
+
+        return response_final == "Да"
