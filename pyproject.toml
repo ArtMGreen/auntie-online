@@ -18,4 +18,5 @@ dependencies = [
     "faiss-cpu",
     "PyMuPDF",
     "hf-xet>=1.1.10",
+    "pymongo>=4.15.1",
 ]
