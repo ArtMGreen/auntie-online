@@ -1,7 +1,9 @@
 # ---------- build stage ----------
 FROM python:3.13-slim AS builder
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-WORKDIR /app
+# Copy the project into the image
+ADD . /app
 
 # Устанавливаем системные зависимости для сборки пакетов
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -10,11 +12,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
  && rm -rf /var/lib/apt/lists/*
 
-# Копируем requirements.txt и ставим зависимости в отдельный слой
-COPY requirements.txt .
-
-RUN pip install --prefix=/install -r requirements.txt
-
+# Sync the project into a new environment, asserting the lockfile is up to date
+WORKDIR /app
+RUN uv sync --locked
 
 # ---------- runtime stage ----------
 FROM python:3.13-slim
@@ -22,12 +22,12 @@ FROM python:3.13-slim
 ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1
 
+ENV PATH="/app/.venv/bin:$PATH"
+
+
 WORKDIR /app
 
-# Копируем только установленные пакеты из builder stage
-COPY --from=builder /install /usr/local
-
-# Копируем исходники
+COPY --from=builder /app/.venv /app/.venv
 COPY src ./src
 
 # Запуск
