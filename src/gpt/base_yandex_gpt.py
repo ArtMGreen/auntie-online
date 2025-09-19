@@ -172,7 +172,7 @@ class BaseYandexGPTBot:
                 "modelUri": f"gpt://{self.config.folder_id}/yandexgpt-lite",
                 "completionOptions": {
                     "stream": False,
-                    "temperature": 0.6,
+                    "temperature": 0.99,
                     "maxTokens": 2000,
                 },
                 "messages": messages,
