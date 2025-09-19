@@ -39,6 +39,14 @@ services:
     volumes:
       - grafana-data:/var/lib/grafana
 
+  db-msg:
+    image: mongo
+    container_name: db-msg
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb:/data/db
 volumes:
   grafana-data:
   loki-data:
+  mongodb:
